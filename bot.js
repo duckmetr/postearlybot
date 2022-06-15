@@ -8,6 +8,6 @@ const bot = new Telegraf(BOT_TOKEN)
 bot.start(ctx => ctx.reply('it work'))
 
 ENVIRONMENT === 'prod'
-? await bot.launch({webhook: BOT_WEBHOOK_URL, port: PORT})
+? await bot.launch({webhook: {domain: BOT_WEBHOOK_URL, port: PORT}})
 : await bot.launch()
 console.log('bot started..')
