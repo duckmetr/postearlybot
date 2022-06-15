@@ -1,0 +1,20 @@
+{
+  "name": "postearlybot",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js",
+    "sheduler": "node sheduler.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "node-schedule": "^2.1.0",
+    "telegraf": "^4.8.5"
+  }
+}
