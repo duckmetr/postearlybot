@@ -7,6 +7,6 @@ dotenv.config()
 const {BOT_TOKEN, CHAT_ID} = process.env
 const bot = new Telegraf(BOT_TOKEN)
 
-schedule.scheduleJob('* */3 * * *', function() {
+schedule.scheduleJob('* */6 * * *', function() {
   bot.telegram.sendPhoto(CHAT_ID, {url: photos[Math.floor(Math.random() * photos.length)]})
 })
