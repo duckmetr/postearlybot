@@ -6,14 +6,30 @@ dotenv.config()
 const {BOT_TOKEN, BOT_WEBHOOK_URL, PORT, CHAT_ID, ENVIRONMENT} = process.env
 const bot = new Telegraf(BOT_TOKEN)
 
+bot.use(async (ctx, next) => {
+  if (ctx.from.id !== 541625404) {
+    await ctx.reply('в разработке')
+    return
+  }
+  next()
+})
+
 bot.start(async ctx => {
-  await ctx.replyWithSticker('CAACAgIAAxkBAAEFtANgylYa9TW-IvhYc8-_bDnCUYmjxwACfwADhZySHrdG2Mf8xmlJHwQ', {
-    ...Markup.keyboard(['👻 Получить мем']).resize()
+  await ctx.replyWithSticker('CAACAgIAAxkBAAEFDvxiq4ISqvz7RrZc-tNYUE2SgdoxagACkRIAArkkAAFK_xyu2zmHzvMkBA', {
+    ...Markup.keyboard(['👻 Отправить фото']).resize()
   })
 })
 
-bot.hears('👻 Получить мем', async ctx => {
-  await ctx.telegram.sendPhoto(CHAT_ID, {url: photos[Math.floor(Math.random() * photos.length)]})
+bot.hears('👻 Отправить фото', async ctx => {
+  const randomPhoto = photos[Math.floor(Math.random() * photos.length)]
+  await ctx.telegram.sendPhoto(CHAT_ID, {url: randomPhoto})
+  await ctx.replyWithPhoto({url: randomPhoto}, {caption: 'This photo send @teen_cutes'})
+})
+
+bot.hears('test', async ctx => {
+  await ctx.reply('test web btn', Markup.inlineKeyboard([
+    Markup.button.webApp('open', 'https://1gram.ru')
+  ]))
 })
 
 ENVIRONMENT === 'prod'
