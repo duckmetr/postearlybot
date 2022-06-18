@@ -23,7 +23,7 @@ bot.start(async ctx => {
 bot.hears('👻 Отправить фото', async ctx => {
   const randomPhoto = photos[Math.floor(Math.random() * photos.length)]
   await ctx.telegram.sendPhoto(CHAT_ID, {url: randomPhoto})
-  await ctx.replyWithPhoto({url: randomPhoto}, {caption: 'This photo send @teen_cutes'})
+  await ctx.replyWithPhoto({url: randomPhoto}, {caption: 'This photo send to @teen_cutes'})
 })
 
 bot.hears('test', async ctx => {
