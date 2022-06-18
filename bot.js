@@ -28,7 +28,7 @@ bot.hears('👻 Отправить фото', async ctx => {
 
 bot.hears('test', async ctx => {
   await ctx.reply('test web btn', Markup.inlineKeyboard([
-    Markup.button.webApp('open', 'https://1gram.ru')
+    Markup.button.webApp('open', 'https://tonstake.vercel.app')
   ]))
 })
 
