@@ -16,20 +16,28 @@ bot.use(async (ctx, next) => {
 
 bot.start(async ctx => {
   await ctx.replyWithSticker('CAACAgIAAxkBAAEFDvxiq4ISqvz7RrZc-tNYUE2SgdoxagACkRIAArkkAAFK_xyu2zmHzvMkBA', {
-    ...Markup.keyboard(['👻 Отправить фото']).resize()
+    ...Markup.keyboard(['👻 Рандомное фото']).resize()
   })
 })
 
-bot.hears('👻 Отправить фото', async ctx => {
-  const randomPhoto = photos[Math.floor(Math.random() * photos.length)]
-  await ctx.telegram.sendPhoto(CHAT_ID, {url: randomPhoto})
-  await ctx.replyWithPhoto({url: randomPhoto}, {caption: 'This photo send to @teen_cutes'})
+bot.hears('👻 Рандомное фото', async ctx => {
+  const randomId = Math.floor(Math.random() * photos.length)
+  const randomPhoto = photos[randomId]
+
+  await ctx.replyWithPhoto(
+    {url: randomPhoto},
+    {
+      caption: 'Your channel @teen_cutes',
+      ...Markup.inlineKeyboard([
+        Markup.button.callback('📤 Отправить', `send_photo_${randomId}`)
+      ])
+    })
 })
 
-bot.hears('test', async ctx => {
-  await ctx.reply('test web btn', Markup.inlineKeyboard([
-    Markup.button.webApp('open', 'https://tonstake.vercel.app')
-  ]))
+bot.action(/send_photo_/, async ctx => {
+  const id = ctx.match.input.split('_')[2]
+  await ctx.answerCbQuery('😎 Отправлено')
+  await ctx.telegram.sendPhoto(CHAT_ID, {url: photos[id]})
 })
 
 ENVIRONMENT === 'prod'
