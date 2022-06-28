@@ -1,76 +1,47 @@
-import { Markup } from 'telegraf'
-import { addChannel, getChannels } from '../services/db.js'
+import * as db from '../services/db.js'
+import * as views from '../views/index.js'
 import { loadPhotoLinks, getRandomLink } from '../utils/index.js'
 
 const links = loadPhotoLinks('./db/photos.json')
 
 export default {
-  actions: {
-    async exec(ctx) {
-      try {
-        this[ctx.update.callback_query.data](ctx)
-      } catch (error) {
-        console.log('[Bot Error]:', error.message)
-      }
-    },
-
-    async profile(ctx) {
-      const channels = await getChannels(ctx.from.id)
-      const channelsButtons = channels.map(channel => [Markup.button.callback(`@${channel}`, 'channels')])
-    
-      await ctx.editMessageText(
-        `👋 Hey, ${ctx.from.first_name}\n\nAdd me to your channel as an admin`,
-        Markup.inlineKeyboard([
-          ...channelsButtons,
-          [Markup.button.url('➕ Add bot to channel', `https://t.me/${ctx.botInfo.username}?startchannel`)],
-        ])
-      )
-    },
-
-    async channels(ctx) {
-      await ctx.answerCbQuery()
-      await ctx.editMessageText(
-        'Крутые Девчонки 😎\n\nfor test you can send random photo to your channel',
-        Markup.inlineKeyboard([
-          [Markup.button.callback('🎲 Random picture', 'randomPhoto')],
-          [Markup.button.callback('🗑 Remove', 'removeChannel')],
-          [Markup.button.callback('‹ back', 'profile')]
-        ])
-      )
-    },
-
-    async randomPhoto(ctx) {
-      const {id, link} = getRandomLink(links)
-    
-      await ctx.answerCbQuery()
-      await ctx.replyWithPhoto(
-        {url: link},
-        {
-          caption: 'Your channel @teen_cutes',
-          ...Markup.inlineKeyboard([
-            [Markup.button.callback('📤 Отправить', `send_photo_${id}`)],
-            [Markup.button.callback('‹ back', 'channels')]
-          ])
-        }
-      )
-    },
-
-    async sendPhoto(ctx) {
-      const id = ctx.match.input.split('_')[2]
-      await ctx.answerCbQuery('😎 Отправлено')
-      await ctx.telegram.sendPhoto(CHAT_ID, {url: links[id]})
+  async start(ctx) {
+    await db.createUser(ctx.from)
+    const channels = await db.getChannels(ctx.from.id)
+    await views.profile(ctx, channels, 'reply')
+  },
+ 
+  async action(ctx) {
+    try {
+      const [method, ...args] = ctx.update.callback_query.data.split(':')
+      await this.actions[method](ctx, args)
+    } catch (error) {
+      console.log('[Bot Error]:', error.message)
     }
   },
+
+  actions: {
+    async profile(ctx) {
+      const channels = await db.getChannels(ctx.from.id)
+      await views.profile(ctx, channels)
+    },
+
+    async channel(ctx, [, username]) {
+      const channelInfo = await ctx.telegram.getChat(`@${username}`)
+      await views.channel(ctx, channelInfo)
+    },
+
+    async sendPhoto(ctx, [username]) {
+      const {link} = getRandomLink(links)
+      await ctx.answerCbQuery('😎 Отправлено')
+      await ctx.telegram.sendPhoto(`@${username}`, {url: link})
+    }
+  },
+
   events: {
     async myChatMember(ctx) {
-      await addChannel(ctx.from.id, ctx.myChatMember.chat.username)
-      await ctx.telegram.sendMessage(
-        ctx.from.id,
-        `🎉 Good, your channel is @${ctx.myChatMember.chat.username}`,
-        Markup.inlineKeyboard([
-          [Markup.button.callback('✔️ Ok', 'ok')],
-        ])
-      )
+      await db.addChannel(ctx.from.id, ctx.myChatMember.chat.username)
+      await views.myChatMember(ctx)
     }
   }
 }

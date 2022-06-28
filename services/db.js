@@ -2,11 +2,7 @@ import User from '../models/users.js'
 
 export async function createUser(tg_info) {
   try {
-    const user = await User.findOne({id: tg_info.id})
-    if (!user) {
-      console.log('user created')
-      return await User.create({...tg_info})
-    }
+    await User.findOneOrCreate(tg_info)
   } catch (error) {
     console.log(`[MONGOOSE]: ${error.message}`)
   }

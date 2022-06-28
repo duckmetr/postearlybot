@@ -18,7 +18,14 @@ const userSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    statics: {
+      async findOneOrCreate(tg_info) {
+        const user = await this.findOne({id: tg_info.id})
+        if (!user) return await this.create({...tg_info})
+        // throw new Error('user already exist')
+      }
+    }
   }
 )
 
